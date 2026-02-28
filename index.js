@@ -1,11 +1,11 @@
 require("dotenv").config();
 const express = require("express");
-console.log(process.env.TBO_CLIENT_ID)
+//console.log(process.env.TBO_CLIENT_ID)
 const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("Travel Backend Running 🚀");
+  res.send("Travel Backend Running ");
 });
 
 
@@ -90,7 +90,7 @@ const results = responseData.Results || [];
 
 const flights = [];
 
-// Now safe to iterate
+
 for (const trip of results) {
   for (const flight of trip) {
 
