@@ -1,68 +1,49 @@
 require("dotenv").config();
+
 const express = require("express");
-console.log(process.env.TBO_USERNAME);
-console.log(process.env.TBO_PASSWORD);
+const fetch = require("node-fetch");
+console.log(process.env.TBO_CLIENT_ID)
+console.log(process.env.TBO_USERNAME)
+console.log( process.env.TBO_PASSWORD)
+console.log( process.env.TBO_IP)
 const app = express();
 app.use(express.json());
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
-app.get("/hotel-search", async (req, res) => {
+// 🔐 Function to get TBO Token
+app.get("/tbo-auth", async (req, res) => {
   try {
-
-    const auth = Buffer
-      .from(`${process.env.TBO_USERNAME}:${process.env.TBO_PASSWORD}`)
-      .toString("base64");
-
     const response = await fetch(
-      "https://api.tbotechnology.in/TBOHolidays_HotelAPI/Search",
+      "https://api.tektravels.com/SharedServices/SharedData.svc/rest/Authenticate",
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Basic ${auth}`
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          CheckIn: "2026-03-02",
-          CheckOut: "2026-03-04",
-
-          HotelCodes: "1247101",   // 🔥 sample code
-
-          GuestNationality: "IN",
-
-          PaxRooms: [
-            {
-              Adults: 2,
-              Children: 0,
-              ChildrenAges: []
-            }
-          ],
-
-          ResponseTime: 23,
-          IsDetailedResponse: false,
-
-          Filters: {
-            Refundable: false,
-            NoOfRooms: 0,
-            MealType: "All"
-          }
-        })
+          ClientId: process.env.TBO_CLIENT_ID,
+          UserName: process.env.TBO_USERNAME,
+          Password: process.env.TBO_PASSWORD,
+          EndUserIp: process.env.TBO_IP,
+        }),
       }
     );
+    console.log(response)
+     const text = await response.text();
+      res.send(text);
 
-    const text = await response.text();
-    console.log("Raw Response:", text);
-
-    const data = JSON.parse(text);
-
-    res.json(data);
+    // ✅ Get RAW BODY as buffer (no parsing)
+   
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).send(err.message);
   }
 });
 
+// 🟢 Health check
+app.get("/", (req, res) => {
+  res.send("TBO Auth Server Running 🚀");
+});
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} 🚀`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
