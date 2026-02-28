@@ -2,11 +2,15 @@ import json
 
 AGENT_REGISTRY = {
     "FLIGHT_AGENT": {
+        "type": "api",
         "required_fields": ["destination", "dates"],
         "skip_if": ["road_trip"],
     },
-    "ACCOMMODATION_AGENT": {"required_fields": ["destination", "dates"]},
-    "ACTIVITY_DINING_AGENT": {"required_fields": ["destination", "interests"]},
+    "ACCOMMODATION_AGENT": {"type": "api", "required_fields": ["destination", "dates"]},
+    "ACTIVITY_DINING_AGENT": {
+        "type": "llm",
+        "required_fields": ["destination", "interests"],
+    },
     "LOGISTICS_AGENT": {"required_fields": ["destination"]},
 }
 
@@ -23,7 +27,10 @@ def rule_based_filter(user_intent):
         excluded_agents.append("ACCOMMODATION_AGENT")
 
     if user_intent.get("budget") == "ultra_low":
-        task_constraints["activities_planning"] = {"price_level": "budget"}
+        task_constraints["activities_planning"] = {
+            "price_level": "budget",
+            "paid_activities": False,
+        }
 
     return excluded_agents, task_constraints
 
@@ -39,7 +46,6 @@ def llm_based_filter(structured_intent, llm):
     - flight_search
     - hotel_search
     - activities_planning
-    - logistics_planning
 
     Rules:
     - If travel_mode is road_trip → exclude flight_search
@@ -55,7 +61,6 @@ TASK_AGENT_MAP = {
     "flight_search": "FLIGHT_AGENT",
     "hotel_search": "ACCOMMODATION_AGENT",
     "activities_planning": "ACTIVITY_DINING_AGENT",
-    "logistics_planning": "LOGISTICS_AGENT",
 }
 
 
