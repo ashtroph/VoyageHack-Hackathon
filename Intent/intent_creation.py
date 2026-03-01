@@ -6,10 +6,12 @@ INTENT_SCHEMA = {
     "start_date": None,
     "end_date": None,
     "duration_days": None,
-    "budget": None,  # ultra_low | low | medium | high
-    "travel_mode": None,  # flight | train | road_trip | mixed
+    "budget": None,
+    "travel_mode": None,
     "interests": [],
     "constraints": {"no_flights": False, "no_hotels": False},
+    # ✅ NEW (optional user inputs)
+    "passengers": {"adults": None, "children": None, "infants": None},
 }
 
 
